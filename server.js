@@ -1,23 +1,28 @@
 const express = require('express');
 const path = require('path');
+const connectDB = require('./db');
+const User = require('./models/user');
+require('dotenv').config();
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 
+connectDB();
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
-
-var old_members = [];
 
 app.get(['/', '/login'], (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-app.post(['/login-submit'], (req, res) => {
+app.post(['/login-submit'], async (req, res) => {
     const { email, password } = req.body;
-    if (old_members.includes(email)) {
+    const user = await User.findOne({ email });
+
+    if (user) {
         res.send([
-            'Welcome again!!',
+            'Welcome back!!',
             {
                 Email: email,
                 Password: password
@@ -47,9 +52,11 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
-app.post('/register-submit', (req, res) => {
+app.post('/register-submit', async (req, res) => {
     const { name, email, password } = req.body;
-    if (old_members.includes(email)) {
+    const user = await User.findOne({ email });
+
+    if (user) {
         res.send(
             `<!DOCTYPE html>
             <html lang="en">
@@ -68,15 +75,20 @@ app.post('/register-submit', (req, res) => {
         );
     }
     else{
-        old_members.push(email);
+        const newUser = new User({
+            name, email, password
+        });
+
+        await newUser.save();
+
+        res.send(['Registration successfull!!',
+            {
+                Name: name,
+                Email: email,
+                Password: password
+            }
+        ]);
     }
-    res.send(['Registration successfull!!',
-        {
-            Name: name,
-            Email: email,
-            Password: password
-        }
-    ]);
 });
 
 app.listen(PORT, () => {
