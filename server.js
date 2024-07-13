@@ -18,7 +18,7 @@ app.get(['/', '/login'], (req, res) => {
 
 app.post(['/login-submit'], async (req, res) => {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, password });
 
     if (user) {
         res.send([
