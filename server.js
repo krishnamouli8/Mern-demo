@@ -21,13 +21,7 @@ app.post(['/login-submit'], async (req, res) => {
     const user = await User.findOne({ email, password });
 
     if (user) {
-        res.send([
-            'Welcome back!!',
-            {
-                Email: email,
-                Password: password
-            }
-        ]);
+        res.send('Welcome back!!');
     } else {
         res.send(`
             <!DOCTYPE html>
@@ -54,7 +48,7 @@ app.get('/register', (req, res) => {
 
 app.post('/register-submit', async (req, res) => {
     const { name, email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email, password });
 
     if (user) {
         res.send(
@@ -81,13 +75,7 @@ app.post('/register-submit', async (req, res) => {
 
         await newUser.save();
 
-        res.send(['Registration successfull!!',
-            {
-                Name: name,
-                Email: email,
-                Password: password
-            }
-        ]);
+        res.send('Registration successfull!!');
     }
 });
 
